@@ -30,39 +30,10 @@ resource "aws_instance" "prometheus" {
     private_key = file("~/.ssh/mtckey")
   }
 
-
-  # provisioner "remote-exec" {
-  #   inline = [
-      
-      
-  #     "mkdir -p /home/ec2-user/playground/jcasc",
-  #     "sudo yum update -y",
-  #     "sudo yum search docker",
-  #     "sudo yum info docker",
-  #     "sudo amazon-linux-extras install -y docker",
-  #     "sudo usermod -a -G docker ec2-user",
-  #     "id ec2-user",
-  #     "sudo systemctl enable docker.service",
-  #     "sudo systemctl start docker.service",
-  #     "sudo systemctl status docker.service",
-  #     "sudo docker version",
-  #   ]
-  # }
-
   provisioner "file" {
     source      = "modules/monitoring/assets/prometheus.yml"
     destination = "/home/ec2-user/prometheus.yml"
   }
-
-  # provisioner "file" {
-  #   source      = "modules/jenkins/assets/Dockerfile"
-  #   destination = "/home/ec2-user/playground/jcasc/Dockerfile"
-  # }
-
-  # provisioner "file" {
-  #   source      = "modules/jenkins/assets/casc.yaml"
-  #   destination = "/home/ec2-user/playground/jcasc/casc.yaml"
-  # }
 
   provisioner "remote-exec" {
     inline = [
@@ -81,80 +52,6 @@ resource "aws_instance" "prometheus" {
       "sudo sed -i 's;<secret_key>;${aws_iam_access_key.prometheus_access_key.secret};g' /prometheus-data/prometheus.yml",
       "sudo docker run -d -p 9090:9090 --name=prometheus -v /prometheus-data/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus",
       "sudo docker run -d -p 3000:3000 --name=grafana grafana/grafana"
-
-      #"docker run -p 9090:9090 -v /home/ec2-user/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus",
     ]
   }
 }
-
-
-
-# resource "aws_instance" "grafana" {
-#   instance_type          = "${var.instance_type}"
-#   ami                    = data.aws_ami.server_ami.id
-#   key_name               = "${var.key_name}"
-#   vpc_security_group_ids = [aws_security_group.grafana_sg.id]
-#   subnet_id              = var.subnet_id[0]
-#   //user_data              = file("/modules/jenkins/assets/userdata_agent.tpl")
-#   root_block_device {
-#     volume_size = 8
-#   }
-
-#   tags = {
-#     Name        = "${var.environment}-grafana"
-#   }
-
-#   provisioner "local-exec" {
-#     command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
-#       hostname     = self.public_ip,
-#       user         = "ec2-user",
-#       //key_name     = "${var.key_name}"
-#       identityfile = "~/.ssh/mtckey",
-#     })
-#     interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
-#   }
-# }
-
-
-
-# resource "aws_instance" "dev_ec2" {
-#   instance_type          = "${var.instance_type}"
-#   ami                    = data.aws_ami.server_ami.id
-#   key_name               = "${var.key_name}"
-#   vpc_security_group_ids = [aws_security_group.jenking_sg.id]
-#   subnet_id              = var.subnet_id[0]
-#   user_data              = file("modules/jenkins/userdata.tpl")
-#   root_block_device {
-#     volume_size = 8
-#   }
-
-#   tags = {
-#     Name        = "${var.environment}-private-ec2"
-#   }
-# }
-
-# resource "aws_security_group" "jenking_sg" {
-#   name        = "${var.environment}-jenkins-sg"
-#   description = "Default security group to allow inbound/outbound from the VPC"
-#   vpc_id      = "${var.vpc_id}"
-#   # depends_on  = [aws_vpc.vpc]
-
-#   ingress {
-#     from_port = "0"
-#     to_port   = "0"
-#     protocol  = "-1"
-#     self      = true
-#     cidr_blocks = ["${var.local_ip}"]
-#   }
-
-#   egress {
-#     from_port = "0"
-#     to_port   = "0"
-#     protocol  = "-1"
-#     self      = "true"
-#   }
-
-#   tags = {
-#     Environment = "${var.environment}"
-#   }
-# }
