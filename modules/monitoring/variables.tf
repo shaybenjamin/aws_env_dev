@@ -28,13 +28,11 @@ variable "local_ip" {
   description = "Local IP for ingress"
 }
 
-variable "prometheus_sg" {
-  description = "Prometheus sg for monitoring"
-}
-
 variable "host_os" {
   type    = string
   default = "windows"
 }
 
-
+variable "prometheus_access_name" {
+ default = "prometheus_ec2_access"
+}

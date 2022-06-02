@@ -1,5 +1,5 @@
-resource "aws_security_group" "jenkins_master_sg" {
-   name        = "${var.environment}_jenkins_master_sg"
+resource "aws_security_group" "prometheus_sg" {
+   name        = "${var.environment}_prometheus_sg"
    description = "Default security group to allow inbound/outbound from the VPC"
    vpc_id      = "${var.vpc.id}"
    depends_on  = [var.vpc]
@@ -11,7 +11,6 @@ resource "aws_security_group" "jenkins_master_sg" {
     protocol    = "-1"
     self        = true
     cidr_blocks = ["${var.local_ip}"]
-    security_groups = [var.prometheus_sg.id]
   }
 
   egress {
@@ -27,9 +26,9 @@ resource "aws_security_group" "jenkins_master_sg" {
   }
 }
 
-resource "aws_security_group" "jenkins_agent_sg" {
-  name        = "${var.environment}_jenkins_agent_sg"
-  description = "Default security group to allow inbound/outbound to jenkins agents"
+resource "aws_security_group" "grafana_sg" {
+  name        = "${var.environment}_grafana_sg"
+  description = "Default security group to allow inbound/outbound to grafana"
   vpc_id      = "${var.vpc.id}"
   depends_on  = [var.vpc]
   
@@ -40,7 +39,7 @@ resource "aws_security_group" "jenkins_agent_sg" {
     to_port         = 0
     protocol        = "-1"
     self            = true
-    security_groups = [aws_security_group.jenkins_master_sg.id, var.prometheus_sg.id]
+    security_groups = [aws_security_group.prometheus_sg.id]
     cidr_blocks = ["${var.local_ip}"]
   }
 
