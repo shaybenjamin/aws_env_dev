@@ -91,11 +91,27 @@ resource "aws_instance" "ansible-engine" {
     }
   }
 
+  # copy linux_git playbook
+  provisioner "file" {
+    source      = "modules/ansible/playbooks/*"
+    destination = "/home/ec2-user/playbooks/"
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(pathexpand(var.ssh_key_pair))
+      host        = self.public_ip
+    }
+  }
+
   # Execute Ansible Playbook
   provisioner "remote-exec" {
     inline = [
       "echo '*************** Start engine-config.yaml **********************'",
       "sleep 120; ansible-playbook engine-config.yaml",
+      
+      "echo '*************** Start linux_docker.yaml **********************'",
+      "sleep 20; ansible-playbook plabooks/instances.yaml",
+
       "echo '*************** Start linux_git.yaml **********************'",
       "sleep 20; ansible-playbook linux_git.yaml",
       "echo '*************** Start linux_docker.yaml **********************'",
