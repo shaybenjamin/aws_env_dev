@@ -24,3 +24,8 @@ variable "private_subnets_cidr" {
 variable "local_ip" {
   description = "Local IP for ingress"
 }
+
+variable "host_os" {
+  type    = string
+  default = "linux"
+}
