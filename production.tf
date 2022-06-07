@@ -32,6 +32,7 @@ module "monitoring" {
   key_name    = module.auth.key_name
   local_ip    = var.local_ip
   vpc         = module.networking.vpc
+  host_os = var.host_os
 }
 
 module "jenkins" {
@@ -43,4 +44,5 @@ module "jenkins" {
   local_ip      = var.local_ip
   vpc           = module.networking.vpc
   prometheus_sg = module.monitoring.prometheus_sg
+  host_os = var.host_os
 }

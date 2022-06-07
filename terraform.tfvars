@@ -1,6 +1,7 @@
 //AWS 
 region      = "us-east-1"
 environment = "dev"
+host_os = "linux"
 
 /* module networking */
 vpc_cidr             = "10.0.0.0/16"
