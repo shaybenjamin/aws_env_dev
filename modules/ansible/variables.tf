@@ -35,7 +35,7 @@ variable "ssh_key_pair_pub" {
 }
 
 variable "ansible_node_count" {
-  default = 2
+  default = 1
 }
 
 variable "host_os" {
@@ -43,8 +43,8 @@ variable "host_os" {
   default = "windows"
 }
 
-# variable "ansible_hosts" {
-#   type        = list(any)
-#   # default = [ {name='', private_dns=''},{name='', private_dns=''} ]
-#   description = "Ansible hosts to configure"
-# }
+variable "jenkins_agent_ec2_host" {
+  type        = list(any)
+  default = [ {name="agent1", private_dns=""} ]
+  description = "Ansible hosts to configure"
+}

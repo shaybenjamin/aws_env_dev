@@ -11,7 +11,7 @@ resource "aws_security_group" "jenkins_master_sg" {
     protocol    = "-1"
     self        = true
     cidr_blocks = ["${var.local_ip}"]
-    security_groups = [var.prometheus_sg.id]
+    //security_groups = [var.prometheus_sg.id]
   }
 
   egress {
@@ -40,8 +40,10 @@ resource "aws_security_group" "jenkins_agent_sg" {
     to_port         = 0
     protocol        = "-1"
     self            = true
-    security_groups = [aws_security_group.jenkins_master_sg.id, var.prometheus_sg.id]
-    cidr_blocks = ["${var.local_ip}"]
+    security_groups = [aws_security_group.jenkins_master_sg.id]
+    //security_groups = [aws_security_group.jenkins_master_sg.id, var.prometheus_sg.id]
+    //cidr_blocks = ["${var.local_ip}"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {

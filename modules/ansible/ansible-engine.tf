@@ -8,14 +8,15 @@ resource "aws_instance" "ansible-engine" {
   vpc_security_group_ids = [aws_security_group.ansible_access_sg.id]
 
   # Install Ansible on engine instance
-  user_data = file("/modules/ansible/assets/user-data-ansible-engine.sh")
+  user_data = "${file("${path.module}/assets/user-data-ansible-engine.sh")}"
 
   root_block_device {
     volume_size = 8
   }
 
   provisioner "local-exec" {
-    command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
+    command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
+    //command = templatefile("../../assets/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ec2-user",
       identityfile = "~/.ssh/mtckey",
@@ -30,9 +31,15 @@ resource "aws_instance" "ansible-engine" {
       "echo 'ansible-engine ansible_host=${aws_instance.ansible-engine.private_dns} ansible_connection=local' >> /home/ec2-user/inventory",
       "echo '[nodes]' >> /home/ec2-user/inventory",
       "echo 'node1 ansible_host=${aws_instance.ansible-nodes[0].private_dns}' >> /home/ec2-user/inventory",
-      "echo 'node2 ansible_host=${aws_instance.ansible-nodes[1].private_dns}' >> /home/ec2-user/inventory",
-      # "echo '${var.ansible_hosts[0].name} ansible_host=${var.ansible_hosts[0].private_dns}' >> /home/ec2-user/inventory",
+      # "echo 'node2 ansible_host=${aws_instance.ansible-nodes[1].private_dns}' >> /home/ec2-user/inventory",
+      #  "echo '${var.ansible_hosts[0].name} ansible_host=${var.ansible_hosts[0].private_dns}' >> /home/ec2-user/inventory",
       # "echo '${var.ansible_hosts[1].name} ansible_host=${var.ansible_hosts[1].private_dns}' >> /home/ec2-user/inventory",
+
+      "echo '[jenkins_agents]' >> /home/ec2-user/inventory",
+      #"echo 'agent1 ansible_host=${var.ansible_hosts[0].private_dns}' >> /home/ec2-user/inventory",
+      "echo '${var.jenkins_agent_ec2_host[0].name} ansible_host=${var.jenkins_agent_ec2_host[0].private_dns}' >> /home/ec2-user/inventory",
+      # "echo 'node2 ansible_host=${aws_instance.ansible-nodes[1].private_dns}' >> /home/ec2-user/inventory",
+       #"echo '${var.ansible_hosts[0].name} ansible_host=${var.ansible_hosts[0].private_dns}' >> /home/ec2-user/inventory",      
       "echo '' >> /home/ec2-user/inventory",
       "echo '[all:vars]' >> /home/ec2-user/inventory",
       "echo 'ansible_user=devops' >> /home/ec2-user/inventory",
@@ -93,8 +100,8 @@ resource "aws_instance" "ansible-engine" {
 
   # copy linux_git playbook
   provisioner "file" {
-    source      = "modules/ansible/playbooks/*"
-    destination = "/home/ec2-user/playbooks/"
+    source      = "modules/ansible/playbooks/jenkins-agent.yaml"
+    destination = "/home/ec2-user/jenkins-agent.yaml"
     connection {
       type        = "ssh"
       user        = "ec2-user"
@@ -109,13 +116,13 @@ resource "aws_instance" "ansible-engine" {
       "echo '*************** Start engine-config.yaml **********************'",
       "sleep 120; ansible-playbook engine-config.yaml",
       
-      "echo '*************** Start linux_docker.yaml **********************'",
-      "sleep 20; ansible-playbook plabooks/instances.yaml",
+      "echo '*************** Start jenkins-agent.yaml **********************'",
+      "sleep 20; ansible-playbook jenkins-agent.yaml",
 
-      "echo '*************** Start linux_git.yaml **********************'",
-      "sleep 20; ansible-playbook linux_git.yaml",
-      "echo '*************** Start linux_docker.yaml **********************'",
-      "sleep 20; ansible-playbook linux_docker.yaml",
+      # "echo '*************** Start linux_git.yaml **********************'",
+      # "sleep 20; ansible-playbook linux_git.yaml",
+      # "echo '*************** Start linux_docker.yaml **********************'",
+      # "sleep 20; ansible-playbook linux_docker.yaml",
     ]
     connection {
       type        = "ssh"
