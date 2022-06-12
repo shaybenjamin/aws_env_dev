@@ -15,7 +15,8 @@ resource "aws_instance" "jenkins_master" {
   }
   
   provisioner "local-exec" {
-    command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
+    //command = templatefile("../../assets/${var.host_os}-ssh-config.tpl", {
+    command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ec2-user",
       identityfile = "~/.ssh/mtckey",
@@ -88,7 +89,8 @@ resource "aws_instance" "jenkins_agent" {
   key_name               = "${var.key_name}"
   vpc_security_group_ids = [aws_security_group.jenkins_agent_sg.id]
   subnet_id              = var.subnet_id[0]
-  user_data              = file("/modules/jenkins/assets/userdata_agent.tpl")
+  //user_data              = file("/modules/jenkins/assets/userdata_agent.tpl")
+  #user_data = "${file("${path.module}/assets/userdata_agent.tpl")}"
   root_block_device {
     volume_size = 8
   }
@@ -98,7 +100,8 @@ resource "aws_instance" "jenkins_agent" {
   }
 
   provisioner "local-exec" {
-    command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
+    command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
+    //command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ec2-user",
       //key_name     = "${var.key_name}"
@@ -134,4 +137,6 @@ connection {
       "./node_exporter.sh"
     ]
   }
+
+  
 }

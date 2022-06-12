@@ -15,7 +15,8 @@ resource "aws_instance" "prometheus" {
   }
   
   provisioner "local-exec" {
-    command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
+    command = templatefile("../../assets/${var.host_os}-ssh-config.tpl", {
+    //command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ec2-user",
       identityfile = "~/.ssh/mtckey",
