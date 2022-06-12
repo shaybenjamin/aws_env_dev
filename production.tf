@@ -24,25 +24,36 @@ module "auth" {
   environment = var.environment
 }
 
-module "monitoring" {
-  source      = "./modules/monitoring"
-  vpc_id      = module.networking.vpc_id
-  subnet_id   = module.networking.public_subnets_id[0]
-  environment = var.environment
-  key_name    = module.auth.key_name
-  local_ip    = var.local_ip
-  vpc         = module.networking.vpc
-  host_os = var.host_os
-}
+# module "monitoring" {
+#   source      = "./modules/monitoring"
+#   vpc_id      = module.networking.vpc_id
+#   subnet_id   = module.networking.public_subnets_id[0]
+#   environment = var.environment
+#   key_name    = module.auth.key_name
+#   local_ip    = var.local_ip
+#   vpc         = module.networking.vpc
+#   host_os     = var.host_os
+# }
 
-module "jenkins" {
-  source        = "./modules/jenkins"
+# module "jenkins" {
+#   source        = "./modules/jenkins"
+#   vpc_id        = module.networking.vpc_id
+#   subnet_id     = module.networking.public_subnets_id[0]
+#   environment   = var.environment
+#   key_name      = module.auth.key_name
+#   local_ip      = var.local_ip
+#   vpc           = module.networking.vpc
+#   prometheus_sg = module.monitoring.prometheus_sg
+#   host_os       = var.host_os
+# }
+
+module "elk" {
+  source        = "./modules/elk"
   vpc_id        = module.networking.vpc_id
   subnet_id     = module.networking.public_subnets_id[0]
   environment   = var.environment
   key_name      = module.auth.key_name
   local_ip      = var.local_ip
   vpc           = module.networking.vpc
-  prometheus_sg = module.monitoring.prometheus_sg
-  host_os = var.host_os
+  host_os       = var.host_os
 }
