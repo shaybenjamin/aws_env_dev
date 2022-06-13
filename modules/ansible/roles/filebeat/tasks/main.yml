@@ -1,0 +1,305 @@
+---
+# tasks file for filebeat
+#
+
+# - name: Install Python3 for some Minimal Setups (Fedora/EL8)
+#   dnf:
+#     name: python3
+#   become: true
+#   when: ansible_distribution_major_version|int >= 8
+
+# - name: Symlink Python to Python3 for EL8/Fedora
+#   file:
+#     src: /usr/bin/python3
+#     dest: /usr/bin/python
+#     state: link
+#   when: ansible_distribution_major_version|int >= 8 and ansible_python_version|int < 3.6
+#   ignore_errors: true
+
+# - name: Switch to Python3 by Default (Fedora/EL8)
+#   command: alternatives --install /usr/bin/python python /usr/bin/python3 1
+#   when: ansible_python_version|int < 3.6 and ansible_distribution_major_version|int >= 8
+
+- name: Import elastic GPG key
+  command: rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+  when: ansible_python_version|int < 3.6 and ansible_distribution_major_version|int >= 8
+
+- name: Copy elastic.repo
+  copy:
+    dest: /etc/yum.repos.d/elastic.repo
+    src: elastic.repo
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install filebeat rpms
+  yum:
+    name: filebeat
+  become: true
+  when: ansible_distribution_major_version|int <= 7
+
+# - name: Install filebeat rpms (EL8/Fedora)
+#   dnf:
+#     name: filebeat
+#   become: true
+#   when: ansible_distribution_major_version|int >= 8
+
+- name: Generate filebeat configuration template
+  template:
+    src=filebeat.yml.j2
+    dest=/etc/filebeat/filebeat.yml
+    owner=root
+    group=root
+    mode=0644
+  become: true
+  #when: (logging_backend != 'fluentd')
+  register: filebeat_needs_restart
+
+
+- name: Copy certificate
+  copy:
+    dest: /etc/pki/tls/certs/logstash-beats.crt
+    src: logstash-beats.crt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start filebeat service
+  service:
+    name: filebeat
+    state: started
+  ignore_errors: true
+  become: true
+  when: ((filebeat_needs_restart != 0) and (logging_backend != 'fluentd'))
+
+- name: Setup filebeat service
+  service: name=filebeat state=started enabled=true
+  become: true
+
+- name: Check filebeat config
+  command: chkconfig --add filebeat
+
+  #when: (logging_backend != 'fluentd')
+
+# - name: Install rsyslogd for fluentd
+#   yum:
+#     name: rsyslog
+#   become: true
+#   when: (logging_backend == 'fluentd')
+
+# - name: Install rsyslogd for fluentd (EL8/Fedora)
+#   dnf:
+#     name: rsyslog
+#   become: true
+#   when: logging_backend == 'fluentd' and ansible_distribution_major_version|int >= 8
+
+# - name: Setup rsyslogd for fluentd
+#   lineinfile: dest=/etc/rsyslog.conf \
+#           line="*.* @{{ elk_server }}:{{ fluentd_syslog_port }}"
+#   when: (logging_backend == 'fluentd')
+#   register: rsyslog_updated
+#   become: true
+
+# - name: Setup common OpenStack rsyslog logging
+#   template:
+#     src=rsyslog-openstack.conf.j2
+#     dest=/etc/rsyslog.d/openstack-logs.conf
+#     owner=root
+#     group=root
+#     mode=0644
+#   become: true
+#   register: rsyslog_updated
+#   when: (logging_backend == 'fluentd')
+
+# - name: Restarting rsyslog for fluentd
+#   command: systemctl restart rsyslog.service
+#   ignore_errors: true
+#   when: rsyslog_updated != 0
+#   become: true
+
+- name: export elastic GPG key
+  command: filebeat export template --es.version {{ FILEBEAT_BASE_VERSION }} > /etc/filebeat/filebeat.template.json
+  #when: ansible_python_version|int < 3.6 and ansible_distribution_major_version|int >= 8
+
+
+# sudo yum install nginx -y
+# sudo systemctl enable nginx.service
+# sudo systemctl start nginx.service
+# sudo systemctl status nginx.service
+
+- name: Check/Install EPEL Repo for nginx
+  yum: name=nginx
+      state=present
+  become: true
+
+# - name: Install nginx, httpd-tools, httplib2
+#   yum:
+#     name: [nginx, httpd-tools, python-httplib2, libselinux-python3]
+#   become: true
+
+# # SELinux boolean for nginx
+# - name: Apply SELinux boolean httpd_can_network_connect
+#   seboolean: name=httpd_can_network_connect state=yes persistent=yes
+#   become: true
+
+# create /etc/nginx/conf.d/ directory
+- name: Create nginx directory structure
+  file: path=/etc/nginx/conf.d/
+    state=directory
+    mode=0755
+  become: true
+
+# deploy kibana.conf with FQDN
+- name: Setup nginx reverse proxy for kibana
+  template:
+    src=kibana.conf.j2
+    dest=/etc/nginx/conf.d/kibana.conf
+    owner=root
+    group=root
+    mode=0644
+  become: true
+  register: nginx_needs_restart
+
+# deploy basic nginx.conf 8080 vhost
+- name: Setup nginx TCP/8080 vhost for SSL certificate
+  template:
+    src=nginx.conf.j2
+    dest=/etc/nginx/nginx.conf
+    owner=root
+    group=root
+    mode=0644
+  become: true
+
+# start nginx service
+- name: Start nginx service
+  command: systemctl restart nginx.service
+  ignore_errors: true
+  when: nginx_needs_restart != 0
+  become: true
+
+- name: Set nginx to start on boot
+  command: systemctl enable nginx.service
+  ignore_errors: true
+  become: true
+
+# we only want to enable EPEL for some packages
+- name: Remove EPEL Repo
+  yum: name={{epel_repo}}
+      state=absent
+  become: true
+
+- name: Copy start script
+  copy:
+    dest: /usr/local/bin/start.sh
+    src: start.sh
+    owner: root
+    group: root
+    mode: 0745
+
+- name: Starting script
+  command: /usr/local/bin/start.sh
+  ignore_errors: true
+  become: true
+
+
+
+
+
+
+
+# #!/bin/bash
+# # Use this for your user data (script from top to bottom)
+# # install httpd (Linux 2 version)
+
+# sudo yum install nginx -y
+# sudo systemctl enable nginx.service
+# sudo systemctl start nginx.service
+# sudo systemctl status nginx.service
+
+
+# #sudo /etc/init.d/nginx start
+
+# sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+# echo "[elastic-8.x]
+# name=Elastic repository for 8.x packages
+# baseurl=https://artifacts.elastic.co/packages/8.x/yum
+# gpgcheck=1
+# gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+# enabled=1
+# autorefresh=1
+# type=rpm-md" > /etc/yum.repos.d/elastic.repo
+
+# sudo yum install filebeat -y
+# sudo systemctl enable filebeat
+# sudo chkconfig --add filebeat
+
+# #sudo rm /var/log/nginx/access.log /var/log/nginx/error.log
+
+# #sudo rm /etc/filebeat/filebeat.yml
+
+# echo "output:
+#   logstash:
+#     enabled: true
+#     hosts:
+#       - ${elkHost}:5044
+#     timeout: 15
+#     ssl:
+#       certificate_authorities:
+#       - /etc/pki/tls/certs/logstash-beats.crt
+
+# filebeat:
+#   inputs:
+#     -
+#       paths:
+#         - /var/log/syslog
+#         - /var/log/auth.log
+#       document_type: syslog
+#     -
+#       paths:
+#         - \"/var/log/nginx/*.log\"
+#       fields_under_root: true
+#       fields:
+#         type: nginx-access" > /etc/filebeat/filebeat.yml
+
+# chmod 644 /etc/filebeat/filebeat.yml
+
+
+# mkdir -p /etc/pki/tls/certs
+# echo "-----BEGIN CERTIFICATE-----
+# MIIC6zCCAdOgAwIBAgIJANPZwuf+5wTLMA0GCSqGSIb3DQEBCwUAMAwxCjAIBgNV
+# BAMMASowHhcNMTUxMjI4MTA0NTMyWhcNMjUxMjI1MTA0NTMyWjAMMQowCAYDVQQD
+# DAEqMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp+jHFvhyYKiPXc7k
+# 0c33f2QV+1hHNyW/uwcJbp5jG82cuQ41v70Z1+b2veBW4sUlDY3yAIEOPSUD8ASt
+# 9m72CAo4xlwYKDvm/Sa3KJtDk0NrQiz6PPyBUFsY+Bj3xn6Nz1RW5YaP+Q1Hjnks
+# PEyQu4vLgfTSGYBHLD4gvs8wDWY7aaKf8DfuP7Ov74Qlj2GOxnmiDEF4tirlko0r
+# qQcvBgujCqA7rNoG+QDmkn3VrxtX8mKF72bxQ7USCyoxD4cWV2mU2HD2Maed3KHj
+# KAvDAzSyBMjI+qi9IlPN5MR7rVqUV0VlSKXBVPct6NG7x4WRwnoKjTXnr3CRADD0
+# 4uvbQQIDAQABo1AwTjAdBgNVHQ4EFgQUVFurgDwdcgnCYxszc0dWMWhB3DswHwYD
+# VR0jBBgwFoAUVFurgDwdcgnCYxszc0dWMWhB3DswDAYDVR0TBAUwAwEB/zANBgkq
+# hkiG9w0BAQsFAAOCAQEAaLSytepMb5LXzOPr9OiuZjTk21a2C84k96f4uqGqKV/s
+# okTTKD0NdeY/IUIINMq4/ERiqn6YDgPgHIYvQheWqnJ8ir69ODcYCpsMXIPau1ow
+# T8c108BEHqBMEjkOQ5LrEjyvLa/29qJ5JsSSiULHvS917nVgY6xhcnRZ0AhuJkiI
+# ARKXwpO5tqJi6BtgzX/3VDSOgVZbvX1uX51Fe9gWwPDgipnYaE/t9TGzJEhKwSah
+# kNr+7RM+Glsv9rx1KcWcx4xxY3basG3/KwvsGAFPvk5tXbZ780VuNFTTZw7q3p8O
+# Gk1zQUBOie0naS0afype5qFMPp586SF/2xAeb68gLg==
+# -----END CERTIFICATE-----" > /etc/pki/tls/certs/logstash-beats.crt
+
+# filebeat export template --es.version ${FILEBEAT_BASE_VERSION} > /etc/filebeat/filebeat.template.json
+
+
+
+# touch /usr/local/bin/start.sh
+
+# cat << EOF >> /usr/local/bin/start.sh
+# curl -XPUT -H \"Content-Type: application/json\" 'http://${elkHost}:9200/_template/filebeat?pretty' -d@/etc/filebeat/filebeat.template.json
+# /etc/init.d/filebeat start
+# nginx
+# tail -f /var/log/nginx/access.log -f /var/log/nginx/error.log
+# EOF
+
+# chmod +x /usr/local/bin/start.sh
+# /usr/local/bin/start.sh
+
+
+

@@ -39,6 +39,10 @@
     state: started
     enabled: yes
 
+- name: Installing Docker SDK for python
+  pip:
+    name: docker-py
+
 - name: Upgrade pip3
   shell: "python3.8 -m pip install pip --upgrade"
 
@@ -51,3 +55,11 @@
     - boto
     - boto3
     - docker-compose
+    - docker
+    - docker-py
+
+- name: Starting Docker service 
+  service:
+    name: docker
+    state: started
+    enabled: yes

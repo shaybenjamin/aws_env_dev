@@ -6,7 +6,7 @@ resource "aws_instance" "elk" {
   key_name               = "${var.key_name}"
   vpc_security_group_ids = [aws_security_group.allow_elk_sg.id]
   subnet_id              = var.subnet_id[0]
-  user_data              = file("${path.module}/assets/userdata.tpl")
+  #user_data              = file("${path.module}/assets/userdata.tpl")
   # root_block_device {
   #   volume_size = 8
   # }
@@ -25,6 +25,26 @@ resource "aws_instance" "elk" {
     interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
 
+  connection {
+    user        = "ec2-user"
+    host        = self.public_ip
+    timeout     = "1m"
+    private_key = file("~/.ssh/mtckey")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install -y python3",
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${self.public_ip},' --private-key ~/.ssh/mtckey -e 'pub_key=~/.ssh/mtckey.pub' ${path.root}/modules/ansible/playbooks/elk-config.yaml"
+  }
+
+
+#ansible-playbook -u ec2-user -i '174.129.181.121,' --private-key ~/.ssh/mtckey -e pub_key='~/.ssh/mtckey.pub' modules/ansible/playbooks/elk-config.yaml
 # connection {
 #     user        = "ec2-user"
 #     host        = self.public_ip
@@ -70,9 +90,9 @@ resource "aws_instance" "filebeat" {
     elkHost = aws_instance.elk.private_ip,
     FILEBEAT_BASE_VERSION = "8.2.2"
   })
-  # root_block_device {
-  #   volume_size = 8
-  # }
+  root_block_device {
+    volume_size = 8
+  }
 
   tags = {
     Name        = "${var.environment}-filebeat"
@@ -87,6 +107,26 @@ resource "aws_instance" "filebeat" {
     })
     interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
+
+connection {
+    user        = "ec2-user"
+    host        = self.public_ip
+    timeout     = "1m"
+    private_key = file("~/.ssh/mtckey")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install -y python3",
+    ]
+  }
+
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${self.public_ip},' --private-key ~/.ssh/mtckey -e 'pub_key=~/.ssh/mtckey.pub' ${path.root}/modules/ansible/playbooks/elk-filebeat-config.yaml --extra-vars=\"elk_server=${aws_instance.elk.private_ip}\""
+  # }
+
+
 
 # connection {
 #     user        = "ec2-user"

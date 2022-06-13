@@ -1,0 +1,14 @@
+---
+- name: "AWS - elk filebeat config"
+  hosts: all
+  # hosts: jenkins_agents
+  become: true
+
+  roles:
+    - ../roles/common-setup-role # Full path to role
+    - ../roles/git # Full path to role
+    - ../roles/docker # Full path to role
+    - ../roles/filebeat
+    
+ 
+

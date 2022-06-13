@@ -94,7 +94,7 @@ Gk1zQUBOie0naS0afype5qFMPp586SF/2xAeb68gLg==
 
 filebeat export template --es.version ${FILEBEAT_BASE_VERSION} > /etc/filebeat/filebeat.template.json
 
-
+filebeat export template --es.version "8.2.2" > /etc/filebeat/filebeat.template.json
 
 touch /usr/local/bin/start.sh
 
@@ -109,9 +109,4 @@ chmod +x /usr/local/bin/start.sh
 /usr/local/bin/start.sh
 
 
-#sudo docker exec -it elk /opt/logstash/bin/logstash --path.data /tmp/logstash/data -e 'input { stdin { } } output { elasticsearch { hosts => ["localhost"] } }'
-
-
-#sudo yum install nginx -y
-# sudo /etc/init.d/nginx start
 
