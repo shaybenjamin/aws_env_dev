@@ -3,20 +3,47 @@ jenkins:
     local:
       allowsSignup: false
       users:
-       - id: ${JENKINS_ADMIN_ID}
-         password: ${JENKINS_ADMIN_PASSWORD}
-  authorizationStrategy:
-    globalMatrix:
-      permissions:
-        - "Overall/Administer:admin"
-        - "Overall/Read:authenticated"
-  remotingSecurity:
-    enabled: true
-security:
-  queueItemAuthenticator:
-    authenticators:
-    - global:
-        strategy: triggeringUsersAuthorizationStrategy
-unclassified:
-  location:
-    url: http://server_ip:8080/
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+        - id: "hashedadmin"
+          # password is 'password'
+          password: "#jbcrypt:$2a$10$LP4bMhwyCPnsDm.XRcTZSuBqWYKGAiDAsQXrSrJGYcEd9padaPgsC"
+        # - id: "admin"
+        #   name: "Admin"
+        #   description: "Superwoman"
+        #   password: "somethingsecret"
+        #   properties:
+        #     - mailer:
+        #         emailAddress: "admin3@example.com"
+        #     - preferredProvider:
+        #         providerId: "default"
+        #     - slack:
+        #         userId: "ABCDEFGH"
+            #- timezone: # pending https://github.com/jenkinsci/jenkins/pull/4557
+            #    timeZoneName: "Europe/London"
+            #- sshPublicKey: # pending https://github.com/jenkinsci/ssh-cli-auth-module/pull/16
+            #    authorizedKeys: |
+            #      ssh-rsa some-key
+  authorizationStrategy: loggedInUsersCanDoAnything
+
+
+# jenkins:
+#   securityRealm:
+#     local:
+#       allowsSignup: false
+#       users:
+#        - id: ${JENKINS_ADMIN_ID}
+#          password: ${JENKINS_ADMIN_PASSWORD}
+#        - id: "shay"
+#          password: "123456"
+#   authorizationStrategy: loggedInUsersCanDoAnything
+#   remotingSecurity:
+#     enabled: true
+# security:
+#   queueItemAuthenticator:
+#     authenticators:
+#     - global:
+#         strategy: triggeringUsersAuthorizationStrategy
+# unclassified:
+#   location:
+#     url: http://server_ip:8080/

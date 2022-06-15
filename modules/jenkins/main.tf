@@ -1,19 +1,19 @@
 resource "aws_instance" "jenkins_master" {
-  instance_type          = "${var.instance_type}"
-  ami                    = data.aws_ami.server_ami.id
-  key_name               = "${var.key_name}"
+  instance_type = var.instance_type
+  ami           = data.aws_ami.server_ami.id
+  key_name      = var.key_name
 
   vpc_security_group_ids = [aws_security_group.jenkins_master_sg.id]
 
-  subnet_id              = var.subnet_id[0]
+  subnet_id = var.subnet_id[0]
   root_block_device {
     volume_size = 8
   }
 
   tags = {
-    Name        = "${var.environment}-jenkins_master"
+    Name = "${var.environment}-jenkins_master"
   }
-  
+
   provisioner "local-exec" {
     //command = templatefile("../../assets/${var.host_os}-ssh-config.tpl", {
     command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
@@ -73,7 +73,7 @@ resource "aws_instance" "jenkins_master" {
     inline = [
       "cd /home/ec2-user/playground/jcasc",
       "docker build -t jenkins:jcasc .",
-      "docker run --name jenkins --rm -p 8080:8080 -p 50001:50001 -d --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
+      "docker run --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh"
@@ -81,36 +81,34 @@ resource "aws_instance" "jenkins_master" {
   }
 }
 
-
-
 resource "aws_instance" "jenkins_agent" {
-  instance_type          = "${var.instance_type}"
+  instance_type          = var.instance_type
   ami                    = data.aws_ami.server_ami.id
-  key_name               = "${var.key_name}"
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_agent_sg.id]
   subnet_id              = var.subnet_id[0]
   //user_data              = file("/modules/jenkins/assets/userdata_agent.tpl")
-  #user_data = "${file("${path.module}/assets/userdata_agent.tpl")}"
+  user_data = file("${path.module}/assets/agent/userdata_agent.tpl")
   root_block_device {
     volume_size = 8
   }
 
   tags = {
-    Name        = "${var.environment}-jenkins_agent"
+    Name = "${var.environment}-jenkins_agent"
   }
 
   provisioner "local-exec" {
     command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
-    //command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
-      hostname     = self.public_ip,
-      user         = "ec2-user",
+      //command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
+      hostname = self.public_ip,
+      user     = "ec2-user",
       //key_name     = "${var.key_name}"
       identityfile = "~/.ssh/mtckey",
     })
     interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
 
-connection {
+  connection {
     user        = "ec2-user"
     host        = self.public_ip
     timeout     = "1m"
@@ -122,6 +120,12 @@ connection {
     inline = [
       "sudo yum update -y",
       "mkdir -p /home/ec2-user/node_exporter",
+      "sudo amazon-linux-extras install -y docker",
+      "sudo usermod -a -G docker ec2-user",
+      "id ec2-user",
+      "sudo systemctl enable docker.service",
+      "sudo systemctl start docker.service",
+      "sudo systemctl status docker.service"
     ]
   }
 
@@ -130,13 +134,14 @@ connection {
     destination = "/home/ec2-user/node_exporter/node_exporter.sh"
   }
 
-   provisioner "remote-exec" {
+  provisioner "remote-exec" {
     inline = [
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
-      "./node_exporter.sh"
+      "./node_exporter.sh",
+      "docker run -d --net host -e JENKINS_URL=http://${aws_instance.jenkins_master.private_ip}:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave"
     ]
   }
+#docker run -d --net host -e JENKINS_URL=http://10.0.1.188:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave
 
-  
 }

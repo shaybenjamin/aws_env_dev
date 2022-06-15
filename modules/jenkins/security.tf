@@ -54,3 +54,13 @@ resource "aws_security_group" "jenkins_agent_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+
+resource "aws_security_group_rule" "jenkins_master_ingress" {
+    type = "ingress"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    security_group_id = "${aws_security_group.jenkins_master_sg.id}"
+    source_security_group_id = "${aws_security_group.jenkins_agent_sg.id}"
+}
