@@ -16,7 +16,6 @@ resource "aws_instance" "ansible-engine" {
 
   provisioner "local-exec" {
     command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
-    //command = templatefile("../../assets/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ec2-user",
       identityfile = "~/.ssh/mtckey",
@@ -62,46 +61,58 @@ resource "aws_instance" "ansible-engine" {
     }
   }
 
-  # copy engine-config.yaml
-  provisioner "file" {
-    source      = "modules/ansible/playbooks/engine-config.yaml"
-    destination = "/home/ec2-user/engine-config.yaml"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(pathexpand(var.ssh_key_pair))
-      host        = self.public_ip
-    }
-  }
+  # # copy engine-config.yaml
+  # provisioner "file" {
+  #   source      = "modules/ansible/playbooks/engine-config.yaml"
+  #   destination = "/home/ec2-user/engine-config.yaml"
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ec2-user"
+  #     private_key = file(pathexpand(var.ssh_key_pair))
+  #     host        = self.public_ip
+  #   }
+  # }
 
   # copy linux_git playbook
-  provisioner "file" {
-    source      = "modules/ansible/playbooks/linux_git.yaml"
-    destination = "/home/ec2-user/linux_git.yaml"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(pathexpand(var.ssh_key_pair))
-      host        = self.public_ip
-    }
-  }
+  # provisioner "file" {
+  #   source      = "modules/ansible/playbooks/linux_git.yaml"
+  #   destination = "/home/ec2-user/linux_git.yaml"
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ec2-user"
+  #     private_key = file(pathexpand(var.ssh_key_pair))
+  #     host        = self.public_ip
+  #   }
+  # }
 
   # copy linux_git playbook
-  provisioner "file" {
-    source      = "modules/ansible/playbooks/linux_docker.yaml"
-    destination = "/home/ec2-user/linux_docker.yaml"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(pathexpand(var.ssh_key_pair))
-      host        = self.public_ip
-    }
-  }
+  # provisioner "file" {
+  #   source      = "modules/ansible/playbooks/linux_docker.yaml"
+  #   destination = "/home/ec2-user/linux_docker.yaml"
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ec2-user"
+  #     private_key = file(pathexpand(var.ssh_key_pair))
+  #     host        = self.public_ip
+  #   }
+  # }
 
-  # copy linux_git playbook
+  # # copy linux_git playbook
+  # provisioner "file" {
+  #   source      = "modules/ansible/playbooks/jenkins-agent.yaml"
+  #   destination = "/home/ec2-user/jenkins-agent.yaml"
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ec2-user"
+  #     private_key = file(pathexpand(var.ssh_key_pair))
+  #     host        = self.public_ip
+  #   }
+  # }
+
+
   provisioner "file" {
-    source      = "modules/ansible/playbooks/jenkins-agent.yaml"
-    destination = "/home/ec2-user/jenkins-agent.yaml"
+    source      = "modules/ansible/playbooks/"
+    destination = "/home/ec2-user/"
     connection {
       type        = "ssh"
       user        = "ec2-user"
