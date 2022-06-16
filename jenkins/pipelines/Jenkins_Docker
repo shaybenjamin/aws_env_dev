@@ -1,7 +1,9 @@
 pipeline {
-    agent {
-        docker { image 'jenkins/agent:latest' }
-    }
+    #agent {
+    #    docker { image 'jenkins/agent:latest' }
+    #}
+    agent { node { label 'linux' } }
+    docker-agent
     
     stages {
         stage("Test") {
