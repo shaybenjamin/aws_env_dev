@@ -1,5 +1,8 @@
 pipeline {
-    agent { node { label 'linux' } }
+    //agent { node { label 'linux' } }
+    agent {
+        docker { image 'jenkins/inbound-agent:latest' }
+    }
     environment {
         DOCKERHUB_CREDENTIALS=credentials('DockerhubCreds')
     }
