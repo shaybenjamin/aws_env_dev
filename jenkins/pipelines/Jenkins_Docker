@@ -1,12 +1,15 @@
 pipeline {
     agent {
-        docker { image 'node:16-alpine' }
+        label 'slave'
     }
     
     stages {
         stage("Test") {
             steps {
                 sh 'node --version'
+                sh 'whoami'
+                sh 'pwd'
+                sh 'hostname'
             }
         }
     }
