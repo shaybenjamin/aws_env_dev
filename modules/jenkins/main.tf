@@ -2,10 +2,12 @@ resource "aws_instance" "jenkins_master" {
   instance_type = var.instance_type
   ami           = data.aws_ami.server_ami.id
   key_name      = var.key_name
-
   vpc_security_group_ids = [aws_security_group.jenkins_master_sg.id]
-
   subnet_id = var.subnet_id[0]
+  depends_on = [
+    aws_instance.jenkins_agent
+  ]
+
   root_block_device {
     volume_size = 8
   }
@@ -50,18 +52,8 @@ resource "aws_instance" "jenkins_master" {
   }
 
   provisioner "file" {
-    source      = "modules/jenkins/assets/plugins.txt"
-    destination = "/home/ec2-user/playground/jcasc/plugins.txt"
-  }
-
-  provisioner "file" {
-    source      = "modules/jenkins/assets/Dockerfile"
-    destination = "/home/ec2-user/playground/jcasc/Dockerfile"
-  }
-
-  provisioner "file" {
-    source      = "modules/jenkins/assets/casc.yaml"
-    destination = "/home/ec2-user/playground/jcasc/casc.yaml"
+    source      = "modules/jenkins/assets/master/"
+    destination = "/home/ec2-user/playground/jcasc"
   }
 
   provisioner "file" {
@@ -73,7 +65,7 @@ resource "aws_instance" "jenkins_master" {
     inline = [
       "cd /home/ec2-user/playground/jcasc",
       "docker build -t jenkins:jcasc .",
-      "docker run -u 0 --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
+      "docker run -u 0 --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password --env JENKINS_AGENT_URL=${aws_instance.jenkins_agent.private_ip} --env JENKINS_URL=${self.private_ip} jenkins:jcasc",
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh"
@@ -87,7 +79,6 @@ resource "aws_instance" "jenkins_agent" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_agent_sg.id]
   subnet_id              = var.subnet_id[0]
-  //user_data              = file("/modules/jenkins/assets/userdata_agent.tpl")
   user_data = file("${path.module}/assets/agent/userdata_agent.tpl")
   root_block_device {
     volume_size = 8
@@ -99,7 +90,6 @@ resource "aws_instance" "jenkins_agent" {
 
   provisioner "local-exec" {
     command = templatefile("${path.root}/assets/${var.host_os}-ssh-config.tpl", {
-      //command = templatefile("/assets/${var.host_os}-ssh-config.tpl", {
       hostname = self.public_ip,
       user     = "ec2-user",
       //key_name     = "${var.key_name}"
@@ -144,9 +134,6 @@ resource "aws_instance" "jenkins_agent" {
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh",
-      //"docker run -d --net host -u 0 -e JENKINS_URL=http://${aws_instance.jenkins_master.private_ip}:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave"
     ]
   }
-#docker run -d --net host -e JENKINS_URL=http://10.0.1.188:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave
-
 }

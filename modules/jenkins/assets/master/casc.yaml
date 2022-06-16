@@ -17,14 +17,14 @@ jenkins:
         dockerApi:
           connectTimeout: 60
           dockerHost:
-            uri: "tcp://10.0.1.221:4243"
+            uri: "tcp://${JENKINS_AGENT_URL}:4243"
           readTimeout: 60
         exposeDockerHost: true
         name: "docker"
         templates:
           - connector:
               jnlp:
-                jenkinsUrl: "http://10.0.1.68:8080"
+                jenkinsUrl: "http://${JENKINS_URL}:8080"
                 jnlpLauncher:
                   workDirSettings:
                     disabled: false
