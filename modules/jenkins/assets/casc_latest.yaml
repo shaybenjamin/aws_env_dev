@@ -1,0 +1,483 @@
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy: "loggedInUsersCanDoAnything"
+  clouds:
+  - docker:
+      dockerApi:
+        connectTimeout: 60
+        dockerHost:
+          uri: "tcp://10.0.1.221:4243"
+        readTimeout: 60
+      exposeDockerHost: true
+      name: "docker"
+      templates:
+      - connector:
+          jnlp:
+            jenkinsUrl: "http://10.0.1.68:8080"
+            jnlpLauncher:
+              workDirSettings:
+                disabled: false
+                failIfWorkDirIsMissing: false
+                internalDir: "remoting"
+            user: "jenkins"
+        dockerTemplateBase:
+          cpuPeriod: 0
+          cpuQuota: 0
+          image: "jenkins/inbound-agent:latest"
+        labelString: "jenkins-agent"
+        mode: EXCLUSIVE
+        name: "jnlp"
+        pullTimeout: 300
+        remoteFs: "/home/jenkins"
+      - connector:
+          jnlp:
+            jenkinsUrl: "http://10.0.1.68:8080"
+            jnlpLauncher:
+              workDirSettings:
+                disabled: false
+                failIfWorkDirIsMissing: false
+                internalDir: "remoting"
+        dockerTemplateBase:
+          cpuPeriod: 0
+          cpuQuota: 0
+          image: "jenkins/jnlp-agent-node:latest"
+        labelString: "jenkins-agent-2"
+        name: "jnlp"
+        pullTimeout: 300
+        remoteFs: "/home/jenkins"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  labelAtoms:
+  - name: "built-in"
+  - name: "ip-10-0-1-221.ec2.internal"
+  - name: "jenkins-agent"
+  - name: "jenkins-agent-2"
+  - name: "linux"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  nodeProperties:
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  - envVars:
+      env:
+      - key: "MAVEN_OPTS"
+  nodes:
+  - permanent:
+      labelString: "linux"
+      launcher:
+        jnlp:
+          workDirSettings:
+            disabled: true
+            failIfWorkDirIsMissing: false
+            internalDir: "remoting"
+      mode: EXCLUSIVE
+      name: "ip-10-0-1-221.ec2.internal"
+      nodeProperties:
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      - envVars:
+          env:
+          - key: "MAVEN_OPTS"
+      remoteFS: "/var/jenkins_home"
+      retentionStrategy: "always"
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "admin"
+        name: "admin"
+        properties:
+        - "apiToken"
+        - favoriting:
+            autofavoriteEnabled: true
+        - "mailer"
+        - "favorite"
+        - "myView"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+      - id: "hashedadmin"
+        name: "hashedadmin"
+        properties:
+        - "apiToken"
+        - favoriting:
+            autofavoriteEnabled: true
+        - "mailer"
+        - "favorite"
+        - "myView"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+  slaveAgentPort: 50000
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  sSHD:
+    port: -1
+unclassified:
+  bitbucketEndpointConfiguration:
+    endpoints:
+    - bitbucketCloudEndpoint:
+        enableCache: false
+        manageHooks: false
+        repositoriesCacheDuration: 0
+        teamCacheDuration: 0
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  buildStepOperation:
+    enabled: false
+  email-ext:
+    adminRequiredForTemplateTesting: false
+    allowUnregisteredEnabled: false
+    charset: "UTF-8"
+    debugMode: false
+    defaultBody: |-
+      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+      Check console output at $BUILD_URL to view the results.
+    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+    defaultTriggerIds:
+    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+    maxAttachmentSize: -1
+    maxAttachmentSizeMb: -1
+    precedenceBulk: false
+    watchingEnabled: false
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    hookUrl: "http://54.242.141.164:8080/github-webhook/"
+  gitSCM:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  globalTimeOutConfiguration:
+    operations:
+    - "abortOperation"
+  junitTestResultStorage:
+    storage: "file"
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  timestamper:
+    allPipelines: false
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"

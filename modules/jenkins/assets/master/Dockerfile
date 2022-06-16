@@ -1,0 +1,10 @@
+FROM docker:latest as base
+FROM jenkins/jenkins:lts-jdk11
+USER root
+COPY --from=base /usr/local/bin/docker /usr/local/bin/docker
+#RUN usermod -aG docker $USER
+ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
+ENV CASC_JENKINS_CONFIG /var/jenkins_home/casc.yaml
+COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+COPY casc.yaml /var/jenkins_home/casc.yaml

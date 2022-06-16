@@ -1,0 +1,18 @@
+pipeline {
+    #agent {
+    #    docker { image 'jenkins/agent:latest' }
+    #}
+    agent { node { label 'linux' } }
+    docker-agent
+    
+    stages {
+        stage("Test") {
+            steps {
+                sh 'node --version'
+                sh 'whoami'
+                sh 'pwd'
+                sh 'hostname'
+            }
+        }
+    }
+}

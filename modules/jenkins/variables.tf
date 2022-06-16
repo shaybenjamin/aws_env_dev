@@ -35,7 +35,7 @@ variable "prometheus_sg" {
 
 variable "host_os" {
   type    = string
-  default = "windows"
+  default = "linux"
 }
 
 

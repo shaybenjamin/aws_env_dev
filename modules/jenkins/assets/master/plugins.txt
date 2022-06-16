@@ -5,6 +5,7 @@ ace-editor
 antisamy-markup-formatter
 apache-httpcomponents-client-4-api
 authentication-tokens
+configuration-as-code
 blueocean-autofavorite
 blueocean-bitbucket-pipeline
 blueocean-commons
