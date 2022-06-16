@@ -73,7 +73,7 @@ resource "aws_instance" "jenkins_master" {
     inline = [
       "cd /home/ec2-user/playground/jcasc",
       "docker build -t jenkins:jcasc .",
-      "docker run --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
+      "docker run --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh"
