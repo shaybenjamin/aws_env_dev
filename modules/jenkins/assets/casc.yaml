@@ -1,4 +1,7 @@
 jenkins:
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
   securityRealm:
     local:
       allowsSignup: false
@@ -8,25 +11,35 @@ jenkins:
         - id: "hashedadmin"
           # password is 'password'
           password: "#jbcrypt:$2a$10$LP4bMhwyCPnsDm.XRcTZSuBqWYKGAiDAsQXrSrJGYcEd9padaPgsC"
-        # - id: "admin"
-        #   name: "Admin"
-        #   description: "Superwoman"
-        #   password: "somethingsecret"
-        #   properties:
-        #     - mailer:
-        #         emailAddress: "admin3@example.com"
-        #     - preferredProvider:
-        #         providerId: "default"
-        #     - slack:
-        #         userId: "ABCDEFGH"
-            #- timezone: # pending https://github.com/jenkinsci/jenkins/pull/4557
-            #    timeZoneName: "Europe/London"
-            #- sshPublicKey: # pending https://github.com/jenkinsci/ssh-cli-auth-module/pull/16
-            #    authorizedKeys: |
-            #      ssh-rsa some-key
   authorizationStrategy: loggedInUsersCanDoAnything
-
-
+  clouds:
+    - docker:
+        dockerApi:
+          connectTimeout: 60
+          dockerHost:
+            uri: "tcp://10.0.1.221:4243"
+          readTimeout: 60
+        exposeDockerHost: true
+        name: "docker"
+        templates:
+          - connector:
+              jnlp:
+                jenkinsUrl: "http://10.0.1.68:8080"
+                jnlpLauncher:
+                  workDirSettings:
+                    disabled: false
+                    failIfWorkDirIsMissing: false
+                    internalDir: "remoting"
+                user: "jenkins"
+            dockerTemplateBase:
+              cpuPeriod: 0
+              cpuQuota: 0
+              image: "jenkins/inbound-agent:latest"
+            labelString: "jenkins-agent"
+            mode: EXCLUSIVE
+            name: "jnlp"
+            pullTimeout: 300
+            remoteFs: "/home/jenkins"
 # jenkins:
 #   securityRealm:
 #     local:
@@ -47,3 +60,86 @@ jenkins:
 # unclassified:
 #   location:
 #     url: http://server_ip:8080/
+
+# jenkins:
+#   systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code plugin\n\n"
+#   numExecutors: 5
+#   scmCheckoutRetryCount: 2
+#   mode: NORMAL
+
+#   globalNodeProperties:
+#     - envVars:
+#         env:
+#           - key: FOO
+#             value: BAR
+
+#   authorizationStrategy:
+#     loggedInUsersCanDoAnything:
+#       allowAnonymousRead: false
+
+#   clouds:
+#     - docker:
+#         name: "docker"
+#         dockerApi:
+#           dockerHost:
+#             uri: "unix:///var/run/docker.sock"
+#         templates:
+#           - labelString: "docker-agent"
+#             dockerTemplateBase:
+#               image: "jenkins/slave"
+#               mounts:
+#                 - "type=tmpfs,destination=/run"
+#                 - "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
+#                 - "type=volume,src=hello,dst=/world"
+#               environmentsString: |
+#                 hello=world
+#                 foo=bar
+#             remoteFs: "/home/jenkins/agent"
+#             connector:
+#               attach:
+#                 user: "jenkins"
+#             instanceCapStr: "10"
+
+# tool:
+#   git:
+#     installations:
+#       - name: git
+#         home: /usr/local/bin/git
+
+##  If Jenkins <2.165 then you can comment out the below section:
+##
+##  https://github.com/jenkinsci/configuration-as-code-plugin/issues/754
+##
+##security:
+##  remotingCLI:
+##    enabled: false
+
+# unclassified:
+#   artifactorybuilder:
+#     useCredentialsPlugin: true
+#     jfrogInstances:
+#       - instanceId: artifactory
+#         platformUrl: http://acme.com/artifactory
+#         artifactoryUrl: http://acme.com/artifactory
+#         distributionUrl: http://acme.com/distribution
+#         resolverCredentialsConfig:
+#           username: artifactory_user
+#           password: "${ARTIFACTORY_PASSWORD}"
+
+#   globalLibraries:
+#     libraries:
+#       - name: "awesome-lib"
+#         retriever:
+#           modernSCM:
+#             scm:
+#               git:
+#                 remote: "https://github.com/jenkins-infra/pipeline-library.git"
+
+#   location:
+#     adminAddress: you@example.com
+#     url: https://ci.example.com/
+
+#   mailer:
+#     replyToAddress: do-not-reply@acme.org
+#     smtpHost: smtp.acme.org
+#     smtpPort: 4441

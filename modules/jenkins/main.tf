@@ -73,7 +73,7 @@ resource "aws_instance" "jenkins_master" {
     inline = [
       "cd /home/ec2-user/playground/jcasc",
       "docker build -t jenkins:jcasc .",
-      "docker run --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
+      "docker run -u 0 --name jenkins --rm -p 8080:8080 -p 50001:50001 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc",
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh"
@@ -125,7 +125,12 @@ resource "aws_instance" "jenkins_agent" {
       "id ec2-user",
       "sudo systemctl enable docker.service",
       "sudo systemctl start docker.service",
-      "sudo systemctl status docker.service"
+      "sudo systemctl status docker.service",
+      "sudo sed -i \"/.*ExecStart=.*/c\\ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock\" /lib/systemd/system/docker.service",
+      "sudo systemctl daemon-reload",
+      "sudo service docker restart",
+      "curl http://localhost:4243/version",
+      "curl http://${self.private_ip}:4243/version"
     ]
   }
 
@@ -139,7 +144,7 @@ resource "aws_instance" "jenkins_agent" {
       "cd /home/ec2-user/node_exporter",
       "sudo chmod +x node_exporter.sh",
       "./node_exporter.sh",
-      "docker run -d --net host -e JENKINS_URL=http://${aws_instance.jenkins_master.private_ip}:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave"
+      //"docker run -d --net host -u 0 -e JENKINS_URL=http://${aws_instance.jenkins_master.private_ip}:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave"
     ]
   }
 #docker run -d --net host -e JENKINS_URL=http://10.0.1.188:8080 -e JENKINS_AUTH=admin:password simenduev/jenkins-auto-slave
