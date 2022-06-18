@@ -3,7 +3,6 @@ pipeline {
     stages {
         stage("Test") {
             steps {
-                sh 'node --version'
                 sh 'whoami'
                 sh 'pwd'
                 sh 'hostname'
