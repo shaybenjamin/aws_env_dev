@@ -125,7 +125,7 @@ connection {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${self.public_ip},' --private-key ~/.ssh/mtckey -e 'pub_key=~/.ssh/mtckey.pub' ${path.root}/modules/ansible/playbooks/jenkins-agent.yaml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${self.public_ip},' --private-key ~/.ssh/mtckey -e 'pub_key=~/.ssh/mtckey.pub' ${path.root}/ansible/playbooks/jenkins-agent.yaml"
   }
 
   
