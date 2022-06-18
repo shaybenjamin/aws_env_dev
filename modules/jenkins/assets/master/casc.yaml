@@ -17,7 +17,7 @@ jenkins:
         dockerApi:
           connectTimeout: 60
           dockerHost:
-            uri: "tcp://${JENKINS_AGENT_URL}:4243"
+            uri: "tcp://{{JENKINS_AGENT_URL}}:4243"
           readTimeout: 60
         exposeDockerHost: true
         name: "docker"

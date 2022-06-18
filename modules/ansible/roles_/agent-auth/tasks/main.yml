@@ -25,18 +25,3 @@
     user: devops
     state: present
     key: "{{ lookup('file', pub_key) }}"
-
-- name: Update all packages
-  yum:
-    name: '*'
-    state: latest
-    update_only: yes  
-
-- name: Add extras repository
-  shell: yum-config-manager --enable extras  
-
-- name: Install alternatives
-  shell: alternatives --install /usr/bin/java java /usr/java/latest/bin/java 1
-
-- name: Install extras epel
-  shell: amazon-linux-extras install -y epel

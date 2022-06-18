@@ -111,7 +111,7 @@ resource "aws_instance" "ansible-engine" {
 
 
   provisioner "file" {
-    source      = "modules/ansible/playbooks/"
+    source      = "ansible/playbooks/"
     destination = "/home/ec2-user/"
     connection {
       type        = "ssh"
