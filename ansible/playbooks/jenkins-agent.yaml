@@ -8,6 +8,7 @@
     - ../roles/common-setup-role # Full path to role
     - ../roles/git # Full path to role
     - ../roles/docker # Full path to role
+    - ../roles/ansible
 
   tasks:
     - name: Install httpd

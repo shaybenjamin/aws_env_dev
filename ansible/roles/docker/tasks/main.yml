@@ -33,6 +33,28 @@
     - ansible
     - docker
 
+# tasks file for common-setup-role
+#
+- name: Add the user 'ec2-user' and add it to 'docker'
+  user:
+    name: ec2-user
+    create_home: yes 
+    state: present 
+    generate_ssh_key: false
+
+- name : "Create Groups"
+  group:
+    name: "{{item}}"
+    state: "present" 
+  with_items:
+    - docker
+
+- ansible.builtin.user:
+    name: ec2-user
+    shell: /bin/bash
+    groups: docker
+    append: yes
+
 - name: Enable Docker CE service at startup
   service:
     name: docker

@@ -38,4 +38,11 @@ variable "host_os" {
   default = "windows"
 }
 
+variable "jenkins_agent_sg_id" {
+  type    = string
+  description = "Jenkins agent to allow ingress"
+}
+
+
+
 

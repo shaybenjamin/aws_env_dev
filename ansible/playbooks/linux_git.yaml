@@ -1,7 +1,7 @@
 ---
 
 - name: Install Git
-  hosts: nodes
+  hosts: all
   become: true
   vars:
     version: 2.36.1

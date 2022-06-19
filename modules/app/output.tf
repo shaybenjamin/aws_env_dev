@@ -2,8 +2,12 @@
 #   value = "${aws_instance.jenkins_master.id}"
 # }
 
-output "jenkins_agent_ec2_id" {
-  value = "${aws_instance.jenkins_agent_test.id}"
+output "app_ec2_id" {
+  value = "${aws_instance.app.id}"
+}
+
+output "app_sg" {
+  value = "${aws_security_group.app_sg.id}"
 }
 
 # output "jenkins_agent_ec2_host" {

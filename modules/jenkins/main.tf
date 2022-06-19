@@ -31,9 +31,14 @@ resource "aws_instance" "jenkins_master" {
     private_key = file("~/.ssh/mtckey")
   }
 
+provisioner "file" {
+    source      = "~/.ssh/mtckey"
+    destination = "/home/ec2-user/.ssh/id_rsa"
+  }
 
   provisioner "remote-exec" {
     inline = [
+      "sudo chmod 600 /home/ec2-user/.ssh/id_rsa",
       "mkdir -p /home/ec2-user/playground/jcasc",
       "mkdir -p /home/ec2-user/node_exporter",
       "sudo yum update -y",
@@ -53,6 +58,8 @@ resource "aws_instance" "jenkins_master" {
     source      = "modules/jenkins/assets/master/"
     destination = "/home/ec2-user/playground/jcasc"
   }
+
+  
 
   provisioner "file" {
     source      = "assets/node_exporter.sh"
@@ -125,9 +132,15 @@ resource "aws_instance" "jenkins_agent" {
   #   ]
   # }
 
+  provisioner "file" {
+      source      = "~/.ssh/mtckey"
+      destination = "/home/ec2-user/.ssh/id_rsa"
+  }
+  
   provisioner "remote-exec" {
     inline = [
       "mkdir -p /home/ec2-user/node_exporter",
+      "sudo chmod 600 /home/ec2-user/.ssh/id_rsa"
     ]
   }
 

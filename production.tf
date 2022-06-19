@@ -53,19 +53,23 @@ module "jenkins" {
   host_os = var.host_os
 }
 
+module "app" {
+  source      = "./modules/app"
+  vpc_id      = module.networking.vpc_id
+  subnet_id   = module.networking.public_subnets_id[0]
+  environment = var.environment
+  key_name    = module.auth.key_name
+  local_ip    = var.local_ip
+  vpc         = module.networking.vpc
+  //prometheus_sg = module.monitoring.prometheus_sg
+  host_os = var.host_os
+  jenkins_agent_sg_id = module.jenkins.jenkins_agent_sg_id
+}
 
 
-# module "test-ansible" {
-#   source      = "./modules/test-ansible"
-#   vpc_id      = module.networking.vpc_id
-#   subnet_id   = module.networking.public_subnets_id[0]
-#   environment = var.environment
-#   key_name    = module.auth.key_name
-#   local_ip    = var.local_ip
-#   vpc         = module.networking.vpc
-#   //prometheus_sg = module.monitoring.prometheus_sg
-#   host_os = var.host_os
-# }
+
+
+
 
 # module "ansible" {
 #   //source      = "${local.local.module_path}/modules/ansible"
