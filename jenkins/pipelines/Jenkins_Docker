@@ -1,11 +1,14 @@
 pipeline {
-    agent { node { label 'jenkins-agent' } }
+    #agent { node { label 'jenkins-agent' } }
+    agent { node { label 'jenkins-agent-test' } }
+    
     stages {
         stage("Test") {
             steps {
                 sh 'whoami'
                 sh 'pwd'
                 sh 'hostname'
+                sleep 100
             }
         }
     }
