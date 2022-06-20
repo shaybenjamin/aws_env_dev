@@ -1,5 +1,4 @@
 pipeline {
-    #agent { node { label 'jenkins-agent' } }
     agent { node { label 'jenkins-agent-test' } }
     
     stages {
