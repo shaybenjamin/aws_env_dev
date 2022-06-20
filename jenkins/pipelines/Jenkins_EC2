@@ -1,0 +1,21 @@
+pipeline {
+    agent { node { label 'ec2' } }
+    
+    stages {
+        stage("Test") {
+            steps {
+                sh 'whoami'
+                sh 'pwd'
+                sh 'hostname'
+            }
+        }
+        stage("Test-ansible") {
+            steps {
+                sh 'cd ansible/playbooks'
+                sh 'ls -la'
+                sh 'hostname'
+                
+            }
+        }
+    }
+}
