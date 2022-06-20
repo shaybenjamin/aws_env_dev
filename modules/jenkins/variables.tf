@@ -38,4 +38,12 @@ variable "host_os" {
   default = "linux"
 }
 
+variable "JENKINS_ADMIN_ID" {
+  description = "JENKINS_ADMIN_ID"
+}
+
+variable "JENKINS_ADMIN_PASSWORD" {
+  description = "JENKINS_ADMIN_PASSWORD"
+}
+
 

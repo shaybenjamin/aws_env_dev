@@ -51,6 +51,8 @@ module "jenkins" {
   vpc         = module.networking.vpc
   //prometheus_sg = module.monitoring.prometheus_sg
   host_os = var.host_os
+  JENKINS_ADMIN_ID = var.JENKINS_ADMIN_ID
+  JENKINS_ADMIN_PASSWORD = var.JENKINS_ADMIN_PASSWORD
 }
 
 module "app" {

@@ -117,3 +117,4 @@ docker-commons
 docker-java-api
 docker-plugin
 docker-workflow
+swarm

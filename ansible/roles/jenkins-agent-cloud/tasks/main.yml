@@ -1,0 +1,17 @@
+---
+# tasks file for common-setup-role
+#
+- name: Expose Dockerhost - replace line in file
+  shell: sed -i "/.*ExecStart=.*/c\\ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock" /lib/systemd/system/docker.service
+
+- name: Reload docker deamon
+  shell: systemctl daemon-reload
+
+- name: sudo service docker restart
+  shell: service docker restart
+
+- name: verify accessibility
+  shell: curl http://{{ private_ip }}:4243/version
+
+- name: verify accessibility - Localhost
+  shell: curl http://localhost:4243/version
