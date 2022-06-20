@@ -11,6 +11,7 @@ pipeline {
         }
         stage("Test-ansible") {
             steps {
+                sh 'pwd'
                 sh 'cd ansible/playbooks'
                 sh 'ls -la'
                 sh 'hostname'
