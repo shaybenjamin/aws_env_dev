@@ -7,7 +7,14 @@ pipeline {
                 sh 'whoami'
                 sh 'pwd'
                 sh 'hostname'
-                sleep 100
+            }
+        }
+        stage("Test-ansible") {
+            steps {
+                sh 'cd ansible/playbooks'
+                sh 'ls -la'
+                sh 'hostname'
+                sleep 150
             }
         }
     }
