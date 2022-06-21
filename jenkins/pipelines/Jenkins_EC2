@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'jenkins-agent-test' } }
+    agent { node { label 'swarm' } }
     
     stages {
         stage("Test") {
@@ -11,10 +11,11 @@ pipeline {
         }
         stage("Test-ansible") {
             steps {
+                sh 'pwd'
                 sh 'cd ansible/playbooks'
                 sh 'ls -la'
                 sh 'hostname'
-                sleep 150
+                
             }
         }
     }
