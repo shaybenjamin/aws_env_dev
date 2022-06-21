@@ -1,22 +1,71 @@
 pipeline {
     agent { node { label 'swarm' } }
-    
+    environment {
+        PlayGround = "${env.WORKSPACE}/playground/${env.BUILD_NUMBER}"
+    }
     stages {
-        stage("Test") {
+        stage('Clone the repo') {
             steps {
+                echo 'WORKSPACE : env.WORKSPACE'
+                echo "PlayGround : '$PlayGround'"
+                echo "BUILD_NUMBER : '$BUILD_NUMBER'"
+                echo "BUILD_ID : '$BUILD_ID'"
+                echo "BUILD_DISPLAY_NAME : '${BUILD_DISPLAY_NAME}'"
+                echo "JOB_NAME : '${JOB_NAME}'"
+                echo "JOB_BASE_NAME : '${JOB_BASE_NAME}'"
+                echo "BUILD_TAG : ‘${BUILD_TAG}'"
+                echo "EXECUTOR_NUMBER : '${EXECUTOR_NUMBER}'"
+                echo "NODE_NAME : '${NODE_NAME}'"
+                echo "NODE_LABELS : '${NODE_LABELS}'"
+                echo "WORKSPACE : '${WORKSPACE}'"
+                echo "JENKINS_HOME : '${JENKINS_HOME}'"
+                sh 'printenv'
                 sh 'whoami'
-                sh 'pwd'
-                sh 'hostname'
+                sh "mkdir -p '$PlayGround'"
+                sh "cd '$PlayGround'"
+                echo 'clone the app repo'
+                
+                sh 'git clone https://github.com/shaybenjamin/webapp1.git'
             }
         }
-        stage("Test-ansible") {
+        stage('copy repo to playground') {
             steps {
+                //sh 'sudo su ec2-user'
+                sh 'whoami'
                 sh 'pwd'
-                sh 'cd ansible/playbooks'
-                sh 'ls -la'
-                sh 'hostname'
+                sh "rsync -av --exclude='.*' '${WORKSPACE}'/webapp1 '$PlayGround'/"
                 
+                //sh "cp -R '${WORKSPACE}'/webapp1 '$PlayGround'/webapp1"
+                
+                //echo 'connect to remote host and pull down the latest version'
+                //sh 'ssh ec2-user@10.0.1.197 touch /var/www/html/index_pipe.html'
+                //sh 'ssh ec2-user@10.0.1.139 sudo git -C /var/www/html pull'
             }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building.....'
+                sh 'git clone https://github.com/shaybenjamin/aws_env_dev.git'
+                sh 'pwd'
+                sh "rsync -av --exclude='.*' '${WORKSPACE}'/aws_env_dev/ansible '$PlayGround'/"
+                //sh 'curl -Is 10.0.1.197 | head -n 1'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh """
+                    echo 'Check website is up'
+                    sudo su ec2-user
+                    whoami
+                    sudo -u ec2-user ansible all -i 10.0.1.222, -b -m copy -a "src=$PlayGround/webapp1/ dest=/var/www/html/"
+                    """.stripIndent()
+            }
+        }
+    }
+    post {
+        always {
+            sh "rm -rf '${WORKSPACE}'/aws_env_dev"
+            sh "rm -rf '${WORKSPACE}'/webapp1"
         }
     }
 }
