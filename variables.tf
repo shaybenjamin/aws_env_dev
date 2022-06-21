@@ -25,6 +25,14 @@ variable "local_ip" {
   description = "Local IP for ingress"
 }
 
+variable "JENKINS_ADMIN_ID" {
+  description = "JENKINS_ADMIN_ID"
+}
+
+variable "JENKINS_ADMIN_PASSWORD" {
+  description = "JENKINS_ADMIN_PASSWORD"
+}
+
 variable "host_os" {
   type    = string
   default = "linux"

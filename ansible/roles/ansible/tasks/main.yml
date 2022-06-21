@@ -1,0 +1,143 @@
+---
+# tasks file for common-setup-role
+#
+- name: Set Hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Create .ssh if not exist
+  file:
+    path: /home/ec2-user/.ssh
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: 0700
+
+- name: Copy ansible.cfg 
+  copy:
+    src: ansible.cfg
+    dest: /home/ec2-user/ansible.cfg
+    owner: ec2-user
+    group: ec2-user
+    mode: 0755
+
+- name: Copy temp inventory file
+  copy:
+    src: inventory
+    dest: /home/ec2-user/inventory
+    owner: ec2-user
+    group: ec2-user
+    mode: 0755
+
+#- name: Create authorized_keys if not exist
+#  copy:
+#    dest: /home/devops/.ssh/authorized_keys
+#    content: ""
+#    force: no
+#    owner: devops 
+#    group: devops
+#    mode: '0600'
+
+#- name: Copy Authorized keys to devops user
+#  blockinfile:
+#    path: /home/devops/.ssh/authorized_keys
+#    block:  "{{ lookup('file', '/home/ec2-user/.ssh/authorized_keys') }}"
+
+# - name: Copy Sample Inventory to devops home
+#   copy:
+#     src: '/home/ec2-user/inventory'
+#     dest: "/home/devops/inventory"
+#     mode: '0755'
+#     owner: devops
+#     group: devops
+#     remote_src: yes
+
+# - name: Copy ansible.cfg to devops home
+#   copy:
+#     src: '/home/ec2-user/ansible.cfg'
+#     dest: "/home/devops/ansible.cfg"
+#     mode: '0755'
+#     owner: devops
+#     group: devops
+#     remote_src: yes
+
+- name: Update /etc/hosts
+  lineinfile:
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ item }}"
+    path: /etc/hosts
+  loop: "{{ groups['all'] }}"
+  #ignore_errors: yes
+
+# - name: Generate an OpenSSH keypair 2048 bits
+#   openssh_keypair:
+#     path: '/home/ec2-user/.ssh/id_rsa'
+#     size: 2048
+#     force: True
+#     owner: ec2-user
+#     group: ec2-user
+#   delegate_to: ansible-engine
+
+# - name: Copy SSH Private Key to devops user
+#   copy:
+#     src: "/home/ec2-user/.ssh/id_rsa"
+#     dest: "/home/devops/.ssh/id_rsa"
+#     owner: devops
+#     group: devops
+#     mode: '0600'
+#     force: yes
+#     remote_src: yes
+
+# - name: Copy SSH Public Key to devops user
+#   copy:
+#     src: "/home/ec2-user/.ssh/id_rsa.pub"
+#     dest: "/home/devops/.ssh/id_rsa.pub"
+#     owner: devops
+#     group: devops
+#     mode: '0644'
+#     force: yes
+#     remote_src: yes
+
+# - name: Fetch the Public Key Content
+#   become: false
+#   set_fact:
+#     devops_public_key: "{{ lookup('file', '/home/ec2-user/.ssh/id_rsa.pub') }}"
+#     host_machine_public_key: "{{ lookup('file', '/home/ec2-user/.ssh/authorized_keys') }}"
+#   delegate_to: ansible-engine 
+
+# - name: Add Host machine public key to devops user
+#   authorized_key:
+#     user: devops
+#     state: present
+#     key: "{{ hostvars['ansible-engine']['host_machine_public_key'] }}"
+
+# - name: Add Ansible Engine keys to authorized_keys of nodes
+#   authorized_key:
+#     user: devops
+#     state: present
+#     key: "{{ hostvars['ansible-engine']['devops_public_key'] }}"
+
+- name: Disable password login
+  lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: "^PasswordAuthentication" 
+    line: "PasswordAuthentication no" 
+    state: present
+
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+- name: Clean up inventory in devops home
+  lineinfile: 
+    dest: /home/ec2-user/inventory
+    regexp: "^ansible_ssh_extra_args"
+    state: absent
+  
+- name: Amend inventory in devops home
+  lineinfile: 
+    dest: /home/ec2-user/inventory
+    #regexp: "^ansible_ssh_extra_args" 
+    line: "ansible_ssh_extra_args=' -o StrictHostKeyChecking=no '" 
+    state: present
+    insertafter: "ansible_connection=ssh"

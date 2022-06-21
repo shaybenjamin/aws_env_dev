@@ -40,6 +40,24 @@ jenkins:
             name: "jnlp"
             pullTimeout: 300
             remoteFs: "/home/jenkins"
+          - connector:
+              jnlp:
+                jenkinsUrl: "http://${JENKINS_URL}:8080"
+                jnlpLauncher:
+                  workDirSettings:
+                    disabled: false
+                    failIfWorkDirIsMissing: false
+                    internalDir: "remoting"
+                user: "jenkins"
+            dockerTemplateBase:
+              cpuPeriod: 0
+              cpuQuota: 0
+              image: "shayben/jenkins-agent-configured:latest"
+            labelString: "jenkins-agent-test"
+            mode: EXCLUSIVE
+            name: "jnlp-configured"
+            pullTimeout: 300
+            remoteFs: "/home/jenkins"
 # jenkins:
 #   securityRealm:
 #     local:

@@ -35,15 +35,14 @@ variable "prometheus_sg" {
 
 variable "host_os" {
   type    = string
-  default = "linux"
+  default = "windows"
 }
 
-variable "JENKINS_ADMIN_ID" {
-  description = "JENKINS_ADMIN_ID"
+variable "jenkins_agent_sg_id" {
+  type    = string
+  description = "Jenkins agent to allow ingress"
 }
 
-variable "JENKINS_ADMIN_PASSWORD" {
-  description = "JENKINS_ADMIN_PASSWORD"
-}
+
 
 
